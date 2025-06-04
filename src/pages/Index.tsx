@@ -1,12 +1,75 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import HeroSection from "@/components/HeroSection";
+import StatsSection from "@/components/StatsSection";
+import TestimonialCard from "@/components/TestimonialCard";
+import ShareExperienceForm from "@/components/ShareExperienceForm";
+import ResourcesSection from "@/components/ResourcesSection";
 
 const Index = () => {
+  const testimonials = [
+    {
+      id: 1,
+      name: "Marie L.",
+      age: 34,
+      story: "Après avoir perdu 25kg en 18 mois, je peux dire que la clé c'est la patience et l'accompagnement. N'hésitez pas à vous faire aider !",
+      weightLoss: 25,
+      timeframe: "18 mois",
+      avatar: "ML"
+    },
+    {
+      id: 2,
+      name: "Thomas B.",
+      age: 42,
+      story: "Le sport m'a sauvé la vie. Commencez petit : 10 minutes de marche par jour, puis augmentez progressivement. L'important c'est la régularité.",
+      weightLoss: 18,
+      timeframe: "12 mois",
+      avatar: "TB"
+    },
+    {
+      id: 3,
+      name: "Sarah K.",
+      age: 29,
+      story: "Changer mes habitudes alimentaires sans me priver complètement a été la solution. 80% d'alimentation saine, 20% de plaisir !",
+      weightLoss: 15,
+      timeframe: "10 mois",
+      avatar: "SK"
+    }
+  ];
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+      <HeroSection />
+      <StatsSection />
+      
+      {/* Section témoignages */}
+      <section className="py-16 px-4 max-w-7xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+            Témoignages & Conseils
+          </h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Découvrez les expériences inspirantes de notre communauté et partagez la vôtre
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {testimonials.map((testimonial) => (
+            <TestimonialCard key={testimonial.id} testimonial={testimonial} />
+          ))}
+        </div>
+      </section>
+
+      <ShareExperienceForm />
+      <ResourcesSection />
+      
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white py-8">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <p className="text-gray-300">
+            © 2024 Ensemble Contre l'Obésité - Une communauté bienveillante pour un mode de vie sain
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
