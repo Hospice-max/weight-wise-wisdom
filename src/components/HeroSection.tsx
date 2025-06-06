@@ -1,6 +1,6 @@
-
 import { Heart, Users, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from 'react-scroll';
 
 const HeroSection = () => {
   return (
@@ -20,10 +20,14 @@ const HeroSection = () => {
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
           <Button className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 text-lg font-semibold rounded-full">
-            Partager mon expérience
+            <Link to="share-experience" smooth={true} duration={500} spy={true}>
+              Partager mon expérience
+            </Link>
           </Button>
-          <Button variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-3 text-lg font-semibold rounded-full">
-            Lire les témoignages
+          <Button asChild className="border-white text-blue-600 hover:bg-gray-100 bg-white px-8 py-3 text-lg font-semibold rounded-full cursor-pointer">
+            <Link to="testimonials" smooth={true} duration={500} spy={true}>
+              Lire les témoignages
+            </Link>
           </Button>
         </div>
         
