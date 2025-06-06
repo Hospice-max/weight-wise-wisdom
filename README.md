@@ -61,7 +61,7 @@ Ce projet est sous licence MIT - voir le fichier [LICENSE](LICENSE) pour plus de
 
 ## 👥 Auteurs
 
-- Votre nom - [Votre profil](votre-profil)
+- Votre nom - [Hospice AHOUANDJINOU](votre-profil)
 
 ## 🙏 Remerciements
 
