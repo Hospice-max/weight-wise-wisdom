@@ -1,6 +1,6 @@
 # Weight Wise Wisdom
 
-Une application web moderne pour suivre et gérer votre poids et votre bien-être.
+Une page web moderne pour partager votre témoignage ou trouver de l'aide pour votre bien-être.
 
 ## 🚀 Technologies utilisées
 

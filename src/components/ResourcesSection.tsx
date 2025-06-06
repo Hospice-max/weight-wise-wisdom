@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, BookOpen, Activity, Utensils, Users } from "lucide-react";
@@ -9,28 +8,28 @@ const ResourcesSection = () => {
       icon: BookOpen,
       title: "Guides Nutritionnels",
       description: "Des guides pratiques pour adopter une alimentation équilibrée et durable",
-      link: "#",
+      link: "/guides-nutritionnels",
       color: "from-blue-500 to-blue-600"
     },
     {
       icon: Activity,
       title: "Programmes d'Exercices",
       description: "Routines adaptées à tous les niveaux pour intégrer le sport au quotidien",
-      link: "#",
+      link: "/programmes-exercices",
       color: "from-green-500 to-green-600"
     },
     {
       icon: Utensils,
       title: "Recettes Saines",
       description: "Découvrez des recettes savoureuses et équilibrées pour varier vos repas",
-      link: "#",
+      link: "/recettes-saines",
       color: "from-purple-500 to-purple-600"
     },
     {
       icon: Users,
       title: "Groupes de Soutien",
       description: "Rejoignez des groupes locaux ou en ligne pour un accompagnement personnalisé",
-      link: "#",
+      link: "/groupes-soutien",
       color: "from-orange-500 to-orange-600"
     }
   ];
@@ -62,14 +61,16 @@ const ResourcesSection = () => {
                 <p className="text-gray-600 text-sm mb-4 leading-relaxed">
                   {resource.description}
                 </p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full group-hover:bg-blue-50 group-hover:border-blue-300 transition-colors"
-                >
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  Découvrir
-                </Button>
+                <a href={resource.link} className="w-full">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full group-hover:bg-blue-50 group-hover:border-blue-300 transition-all duration-300 hover:scale-105 hover:bg-blue-100 hover:border-blue-400 hover:text-blue-600"
+                  >
+                    <ExternalLink className="w-4 h-4 mr-2 transition-transform group-hover:translate-x-1" />
+                    Découvrir
+                  </Button>
+                </a>
               </CardContent>
             </Card>
           ))}
@@ -79,9 +80,11 @@ const ResourcesSection = () => {
           <p className="text-sm text-gray-500 mb-4">
             Toutes nos ressources sont validées par des professionnels de santé
           </p>
-          <Button variant="outline" className="px-8">
-            Voir toutes les ressources
-          </Button>
+          <a href="/toutes-les-ressources">
+            <Button variant="outline" className="px-8 transition-all duration-300 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600">
+              Voir toutes les ressources
+            </Button>
+          </a>
         </div>
       </div>
     </section>

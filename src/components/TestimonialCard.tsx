@@ -11,14 +11,14 @@ interface Testimonial {
   story: string;
   weightLoss: number;
   timeframe: string;
-  avatar: string;
+  image: string | null;
 }
 
 interface TestimonialCardProps {
   testimonial: Testimonial;
 }
-
 const TestimonialCard = ({ testimonial }: TestimonialCardProps) => {
+  console.log("testimonials", testimonial);
   return (
     <Card className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-lg bg-gradient-to-br from-white to-blue-50">
       <CardContent className="p-6">
@@ -30,9 +30,17 @@ const TestimonialCard = ({ testimonial }: TestimonialCardProps) => {
         
         <div className="flex items-center gap-3 mb-4">
           <Avatar className="w-12 h-12 bg-gradient-to-r from-blue-500 to-green-500">
-            <AvatarFallback className="text-white font-bold">
-              {testimonial.avatar}
-            </AvatarFallback>
+            {!testimonial.image ? (
+              <AvatarFallback className="text-white bg-blue-600 font-bold">
+                {testimonial.name.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            ) : (
+              <img
+                src={testimonial.image}
+                alt={testimonial.name}
+                className="w-full h-full object-cover"
+              />
+            )}
           </Avatar>
           <div>
             <div className="font-semibold text-gray-800">{testimonial.name}</div>
