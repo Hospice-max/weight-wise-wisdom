@@ -3,7 +3,7 @@ import StatsSection from "@/components/StatsSection";
 import TestimonialCard from "@/components/TestimonialCard";
 import ShareExperienceForm from "@/components/ShareExperienceForm";
 import ResourcesSection from "@/components/ResourcesSection";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 const Index = () => {
   const defaultTestimonials = [
@@ -16,6 +16,7 @@ const Index = () => {
       weightLoss: 25,
       timeframe: "18 mois",
       image: null,
+      userId: "system_user_1"
     },
     {
       id: 2,
@@ -26,6 +27,7 @@ const Index = () => {
       weightLoss: 18,
       timeframe: "12 mois",
       image: null,
+      userId: "system_user_2"
     },
     {
       id: 3,
@@ -36,10 +38,22 @@ const Index = () => {
       weightLoss: 15,
       timeframe: "10 mois",
       image: null,
+      userId: "system_user_3"
     },
   ];
 
   const [testimonials, setTestimonials] = useState(defaultTestimonials);
+  // Générer un identifiant utilisateur unique si non défini
+  const [currentUserId] = useState(() => {
+    // Vérifier si un ID utilisateur existe déjà dans le localStorage
+    const storedUserId = localStorage.getItem('currentUserId');
+    if (storedUserId) return storedUserId;
+    
+    // Sinon, en créer un nouveau et le stocker
+    const newUserId = `user_${Date.now()}`;
+    localStorage.setItem('currentUserId', newUserId);
+    return newUserId;
+  });
 
   useEffect(() => {
     const testim = localStorage.getItem("Témoignages");
@@ -52,6 +66,19 @@ const Index = () => {
       }
     }
   }, []);
+
+  const handleDeleteTestimonial = useCallback((id: number) => {
+    setTestimonials(prevTestimonials => {
+      // Filtrer le témoignage à supprimer
+      const updatedTestimonials = prevTestimonials.filter(t => t.id !== id);
+      
+      // Mettre à jour le localStorage
+      const userTestimonials = updatedTestimonials.filter(t => t.userId === currentUserId);
+      localStorage.setItem('Témoignages', JSON.stringify(userTestimonials));
+      
+      return updatedTestimonials;
+    });
+  }, [currentUserId]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
@@ -75,6 +102,8 @@ const Index = () => {
             <TestimonialCard
               key={testimonial.id ?? `testimonial-${index}`}
               testimonial={testimonial}
+              onDelete={handleDeleteTestimonial}
+              currentUserId={currentUserId}
             />
           ))}
         </div>
