@@ -1,8 +1,10 @@
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Quote } from "lucide-react";
+import { Quote, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 interface Testimonial {
   id: number;
@@ -12,13 +14,25 @@ interface Testimonial {
   weightLoss: number;
   timeframe: string;
   image: string | null;
+  userId?: string; // Ajout de l'identifiant utilisateur
 }
 
 interface TestimonialCardProps {
   testimonial: Testimonial;
+  onDelete?: (id: number) => void;
+  currentUserId?: string; // Ajout de l'identifiant de l'utilisateur connecté
 }
-const TestimonialCard = ({ testimonial }: TestimonialCardProps) => {
-  console.log("testimonials", testimonial);
+const TestimonialCard = ({ testimonial, onDelete, currentUserId }: TestimonialCardProps) => {
+  const { toast } = useToast();
+  
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete(testimonial.id);
+    }
+  };
+  
+  // Vérifie si l'utilisateur actuel est l'auteur du témoignage
+  const isOwner = currentUserId && testimonial.userId === currentUserId;
   return (
     <Card className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-lg bg-gradient-to-br from-white to-blue-50">
       <CardContent className="p-6">
@@ -57,6 +71,19 @@ const TestimonialCard = ({ testimonial }: TestimonialCardProps) => {
           </Badge>
         </div>
       </CardContent>
+      {isOwner && onDelete && (
+        <CardFooter className="flex justify-end p-2 pt-0">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-red-500 hover:text-red-600 hover:bg-red-50"
+            onClick={handleDelete}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Supprimer
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 };

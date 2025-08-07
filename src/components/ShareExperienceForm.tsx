@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Share2, Send } from "lucide-react";
+import { Share2, Send, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+// Taille maximale de l'image en octets (1 Mo)
+const MAX_IMAGE_SIZE = 1 * 1024 * 1024;
 
 const ShareExperienceForm = () => {
   const [formData, setFormData] = useState({
@@ -19,48 +22,115 @@ const ShareExperienceForm = () => {
   });
 
   const { toast } = useToast();
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    
+    if (!file) {
+      setImageError(null);
+      setImagePreview(null);
+      setFormData(prev => ({ ...prev, image: null }));
+      return;
+    }
+
+    // Vérification de la taille de l'image
+    if (file.size > MAX_IMAGE_SIZE) {
+      toast({
+        title: "Image trop volumineuse",
+        description: "L'image ne doit pas dépasser 1 Mo. Veuillez en sélectionner une plus petite.",
+        variant: "destructive",
+      });
+      setImageError("L'image est trop volumineuse (max 1 Mo)");
+      setImagePreview(null);
+      setFormData(prev => ({ ...prev, image: null }));
+      return;
+    }
+
+    // Vérification du type de fichier
+    if (!file.type.match('image.*')) {
+      toast({
+        title: "Type de fichier non supporté",
+        description: "Veuillez sélectionner une image valide (JPEG, PNG, etc.)",
+        variant: "destructive",
+      });
+      setImageError("Type de fichier non supporté");
+      setImagePreview(null);
+      setFormData(prev => ({ ...prev, image: null }));
+      return;
+    }
+
+    // Création de l'aperçu de l'image
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+      setFormData(prev => ({ ...prev, image: file }));
+    };
+    reader.readAsDataURL(file);
+    setImageError(null);
+  };
+
+  const removeImage = () => {
+    setImagePreview(null);
+    setFormData(prev => ({ ...prev, image: null }));
+    setImageError(null);
+    // Réinitialiser l'input file
+    const fileInput = document.getElementById('image-upload') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+  };
+
   const stockage = async () => {
     try {
-      // Récupération des données existantes, avec validation pour garantir un tableau
+      // Vérification des champs obligatoires
+      if (!formData.name || !formData.age || !formData.story || !formData.weightLoss || !formData.timeframe) {
+        toast({
+          title: "Champs manquants",
+          description: "Veuillez remplir tous les champs obligatoires.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Vérification de l'image si elle a été sélectionnée
+      if (formData.image && formData.image instanceof File) {
+        if (formData.image.size > MAX_IMAGE_SIZE) {
+          toast({
+            title: "Image trop volumineuse",
+            description: "L'image ne doit pas dépasser 1 Mo. Veuillez en sélectionner une plus petite.",
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+
+      // Récupération des données existantes
       let existingData = [];
       const storedData = localStorage.getItem("Témoignages");
       if (storedData) {
         const parsedData = JSON.parse(storedData);
         existingData = Array.isArray(parsedData) ? parsedData : [];
       }
-  
-      // Limiter le nombre d'éléments stockés (par exemple, 10 maximum)
-      // const MAX_ITEMS = 10;
-      // if (existingData.length >= MAX_ITEMS) {
-      //   existingData = existingData.slice(-MAX_ITEMS + 1); // Garde les plus récents
-      // }
-  
+      
+      // Récupérer l'ID utilisateur actuel
+      const currentUserId = localStorage.getItem('currentUserId');
+      
       // Conversion de l'image en base64 si nécessaire
       let base64Image = null;
-      if (formData.image instanceof File) {
-        // Optionnel : Vérifier la taille du fichier avant conversion
-        if (formData.image.size > 1 * 1024 * 1024) { // Limite à 1 MB
-          toast({
-            title: "Erreur",
-            description: "L'image est trop volumineuse. Veuillez utiliser une image plus petite.",
-            variant: "destructive",
-          });          
-        }
-        
-        base64Image = await new Promise((resolve, reject) => {
+      if (formData.image) {
+        base64Image = await new Promise((resolve) => {
           const reader = new FileReader();
           reader.onloadend = () => resolve(reader.result);
-          reader.onerror = () => reject(new Error("Erreur lors de la lecture du fichier image"));
+          reader.onerror = () => resolve(null);
           reader.readAsDataURL(formData.image);
         });
-      } else if (typeof formData.image === "string" && formData.image) {
-        base64Image = formData.image;
       }
   
-      // Création de l'objet à sauvegarder
+      // Création de l'objet à sauvegarder avec l'ID utilisateur
       const dataToSave = {
         ...formData,
         image: base64Image,
+        userId: currentUserId, // Ajout de l'ID utilisateur
       };
   
       // Ajout des données
@@ -131,33 +201,18 @@ const ShareExperienceForm = () => {
 
   const openFileInput = () => {
     const fileInput = document.createElement("input");
+    fileInput.id = 'image-upload';
     fileInput.type = "file";
     fileInput.accept = "image/*";
     fileInput.style.display = "none";
     document.body.appendChild(fileInput);
-    fileInput.click();
-
+    
     fileInput.addEventListener("change", (event) => {
-      const target = event.target as HTMLInputElement;
-      const file = target.files?.[0];
-      if (file) {
-        setFormData((prev) => ({
-          ...prev,
-          image: file,
-        }));
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const previewImage = document.getElementById("previewImage");
-          if (previewImage) {
-            (previewImage as HTMLImageElement).src = e.target?.result as string;
-          }
-        };
-        reader.readAsDataURL(file);
-      }
-
+      handleImageChange(event as unknown as ChangeEvent<HTMLInputElement>);
       document.body.removeChild(fileInput);
     });
+    
+    fileInput.click();
   };
 
   return (
@@ -181,49 +236,64 @@ const ShareExperienceForm = () => {
           <CardHeader className="bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-t-lg">
             <CardTitle className="text-center text-xl flex justify-between items-center">
               <div className="relative">
-                {formData.image ? (
-                  <img
-                    id="previewImage"
-                    src={
-                      typeof formData.image === "string"
-                        ? formData.image
-                        : URL.createObjectURL(formData.image)
-                    }
-                    alt="Preview"
-                    className="w-16 h-16 object-cover rounded-full"
-                  />
+                {imagePreview ? (
+                  <div className="relative group">
+                    <img
+                      src={imagePreview}
+                      alt="Aperçu"
+                      className="w-16 h-16 object-cover rounded-full"
+                    />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeImage();
+                      }}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Supprimer l'image"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
                 ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 30 30"
-                    width="35"
-                    height="35"
+                  <div 
+                    onClick={openFileInput}
+                    className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
                   >
-                    <path
-                      fill="currentColor"
-                      d="M16 8a5 5 0 1 0 5 5a5 5 0 0 0-5-5"
-                    />
-                    <path
-                      fill="currentColor"
-                      d="M16 2a14 14 0 1 0 14 14A14.016 14.016 0 0 0 16 2m7.993 22.926A5 5 0 0 0 19 20h-6a5 5 0 0 0-4.992 4.926a12 12 0 1 1 15.985 0"
-                    />
-                  </svg>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 30 30"
+                      width="30"
+                      height="30"
+                      className="text-gray-400"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M16 8a5 5 0 1 0 5 5a5 5 0 0 0-5-5"
+                      />
+                      <path
+                        fill="currentColor"
+                        d="M16 2a14 14 0 1 0 14 14A14.016 14.016 0 0 0 16 2m7.993 22.926A5 5 0 0 0 19 20h-6a5 5 0 0 0-4.992 4.926a12 12 0 1 1 15.985 0"
+                      />
+                    </svg>
+                  </div>
                 )}
-
-                <button
-                  onClick={openFileInput}
-                  className="absolute bottom-0 right-0 bg-blue-600 p-1 rounded-full text-white hover:bg-blue-700"
-                  title="Changer l'image"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-2 w-2"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
+                {!imagePreview && (
+                  <button
+                    onClick={openFileInput}
+                    className="absolute bottom-0 right-0 bg-blue-600 p-1.5 rounded-full text-white hover:bg-blue-700 transition-colors"
+                    title="Ajouter une image"
+                    type="button"
                   >
-                    <path d="M17.414 2.586a2 2 0 0 0-2.828 0L6 11.172V14h2.828l8.586-8.586a2 2 0 0 0 0-2.828zM4 16a1 1 0 0 1-1-1v-3.586l2 2V16z" />
-                  </svg>
-                </button>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-3 w-3"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path d="M17.414 2.586a2 2 0 0 0-2.828 0L6 11.172V14h2.828l8.586-8.586a2 2 0 0 0 0-2.828zM4 16a1 1 0 0 1-1-1v-3.586l2 2V16z" />
+                    </svg>
+                  </button>
+                )}
               </div>
 
               <span className="flex-1 text-center">Nouveau Témoignage</span>
