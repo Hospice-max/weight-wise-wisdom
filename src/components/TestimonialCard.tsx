@@ -1,38 +1,33 @@
-
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Quote, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-
-interface Testimonial {
-  id: number;
-  name: string;
-  age: number;
-  story: string;
-  weightLoss: number;
-  timeframe: string;
-  image: string | null;
-  userId?: string; // Ajout de l'identifiant utilisateur
-}
+import { Testimonial } from "@/lib/firebaseService";
 
 interface TestimonialCardProps {
   testimonial: Testimonial;
-  onDelete?: (id: number) => void;
+  onDelete?: (id: string) => void;
   currentUserId?: string; // Ajout de l'identifiant de l'utilisateur connecté
 }
+
 const TestimonialCard = ({ testimonial, onDelete, currentUserId }: TestimonialCardProps) => {
   const { toast } = useToast();
   
   const handleDelete = () => {
-    if (onDelete) {
+    if (onDelete && testimonial.id) {
       onDelete(testimonial.id);
     }
   };
   
   // Vérifie si l'utilisateur actuel est l'auteur du témoignage
   const isOwner = currentUserId && testimonial.userId === currentUserId;
+  
+  // Convert string values to numbers for display
+  const age = parseInt(testimonial.age || "0", 10);
+  const weightLoss = parseInt(testimonial.weightLoss || "0", 10);
+  
   return (
     <Card className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-lg bg-gradient-to-br from-white to-blue-50">
       <CardContent className="p-6">
@@ -58,20 +53,20 @@ const TestimonialCard = ({ testimonial, onDelete, currentUserId }: TestimonialCa
           </Avatar>
           <div>
             <div className="font-semibold text-gray-800">{testimonial.name}</div>
-            <div className="text-sm text-gray-500">{testimonial.age} ans</div>
+            <div className="text-sm text-gray-500">{age} ans</div>
           </div>
         </div>
         
         <div className="flex gap-2 flex-wrap">
           <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-200">
-            -{testimonial.weightLoss}kg
+            -{weightLoss}kg
           </Badge>
           <Badge variant="outline" className="border-blue-200 text-blue-700">
             {testimonial.timeframe}
           </Badge>
         </div>
       </CardContent>
-      {isOwner && onDelete && (
+      {isOwner && onDelete && testimonial.id && (
         <CardFooter className="flex justify-end p-2 pt-0">
           <Button 
             variant="ghost" 

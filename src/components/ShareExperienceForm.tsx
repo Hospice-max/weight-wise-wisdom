@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Share2, Send, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { addTestimonial } from "@/lib/firebaseService";
 
 // Taille maximale de l'image en octets (1 Mo)
 const MAX_IMAGE_SIZE = 1 * 1024 * 1024;
@@ -82,6 +83,7 @@ const ShareExperienceForm = () => {
 
   const stockage = async () => {
     try {
+      console.log("Stockage function called with formData:", formData);
       // Vérification des champs obligatoires
       if (!formData.name || !formData.age || !formData.story || !formData.weightLoss || !formData.timeframe) {
         toast({
@@ -103,17 +105,9 @@ const ShareExperienceForm = () => {
           return;
         }
       }
-
-      // Récupération des données existantes
-      let existingData = [];
-      const storedData = localStorage.getItem("Témoignages");
-      if (storedData) {
-        const parsedData = JSON.parse(storedData);
-        existingData = Array.isArray(parsedData) ? parsedData : [];
-      }
       
       // Récupérer l'ID utilisateur actuel
-      const currentUserId = localStorage.getItem('currentUserId');
+      const currentUserId = localStorage.getItem('currentUserId') || `user_${Date.now()}`;
       
       // Conversion de l'image en base64 si nécessaire
       let base64Image = null;
@@ -128,51 +122,47 @@ const ShareExperienceForm = () => {
   
       // Création de l'objet à sauvegarder avec l'ID utilisateur
       const dataToSave = {
-        ...formData,
-        image: base64Image,
+        name: formData.name,
+        age: formData.age,
+        story: formData.story,
+        weightLoss: formData.weightLoss,
+        timeframe: formData.timeframe,
+        image: base64Image as string | null,
         userId: currentUserId, // Ajout de l'ID utilisateur
       };
   
-      // Ajout des données
-      existingData.push(dataToSave);
+      console.log("Saving testimonial to Firebase:", dataToSave);
+      // Ajout des données à Firebase
+      const result = await addTestimonial(dataToSave);
+      console.log("Firebase response:", result);
   
-      // Vérifier la taille des données avant sauvegarde
-      const serializedData = JSON.stringify(existingData);
-      const dataSizeKB = new TextEncoder().encode(serializedData).length / 1024;
-      if (dataSizeKB > 4000) { // Limite à ~4 MB pour rester sous la limite typique de 5 MB
-        toast({
-          title: "Erreur",
-          description: "Merci de votre témoignage, mais notre quota de témoignages est atteint. Revenez plus tard !",
-          variant: "destructive",
-        });
-      }else {
+      if (result.success) {
         toast({
           title: "Témoignage envoyé !",
           description:
             "Merci de partager votre expérience. Elle sera vérifiée avant publication.",
         });
-      }
-  
-      // Sauvegarde des données
-      localStorage.setItem("Témoignages", serializedData);
-    } catch (error) {
-      if (error.name === "QuotaExceededError") {
-        console.error("Erreur : La limite de stockage du navigateur est dépassée.");       
+      } else {
         toast({
           title: "Erreur",
-          description: "Merci de votre témoignage, mais notre quota de témoignages est atteint. Revenez plus tard !",
+          description: "Une erreur est survenue lors de l'envoi de votre témoignage. Veuillez réessayer.",
           variant: "destructive",
         });
-      } else {
-        console.error("Erreur lors de la sauvegarde des données :", error);
       }
+    } catch (error) {
+      console.error("Erreur lors de la sauvegarde des données :", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'envoi de votre témoignage. Veuillez réessayer.",
+        variant: "destructive",
+      });
       throw error; // Relancer l'erreur pour la gestion par l'appelant
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-    // e.preventDefault();
     await stockage();
    
 
