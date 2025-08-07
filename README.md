@@ -12,10 +12,10 @@ Weight Wise Wisdom - Une plateforme communautaire bienveillante pour partager le
 - **Framework**: React 18
 - **Build Tool**: Vite
 - **Styling**: Tailwind CSS
-- **UI Components**: Shadcn/ui (avec Radix UI)
+- **UI Components**: Shadcn/ui
 - **Form Handling**: React Hook Form
 - **Validation**: Zod
-- **State Management**: React Query (TanStack Query)
+- **State Management**: React Query
 - **Routing**: React Router
 - **Icons**: Lucide React
 - **Data Persistence**: LocalStorage
