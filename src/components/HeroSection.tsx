@@ -13,7 +13,7 @@ const HeroSection = () => {
             Ensemble Contre l'Obésité
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto leading-relaxed">
-            Une communauté bienveillante où chacun peut partager son expérience, 
+            Une communauté bienveillante où chacun peut partager son expérience,
             donner des conseils et trouver du soutien dans sa démarche de bien-être
           </p>
         </div>
@@ -31,7 +31,7 @@ const HeroSection = () => {
           </Button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-white/90">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-white/90 mb-12">
           <div className="flex flex-col items-center">
             <Users className="w-8 h-8 mb-2" />
             <p className="font-semibold">Communauté Bienveillante</p>

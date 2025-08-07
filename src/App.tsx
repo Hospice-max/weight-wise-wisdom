@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import UnderDevelopment from "./pages/UnderDevelopment";
+import ConfirmSubscription from "./pages/ConfirmSubscription";
 
 const queryClient = new QueryClient();
 
@@ -17,6 +18,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/confirm-subscription" element={<ConfirmSubscription />} />
           {/* Routes for resources under development */}
           <Route path="/guides-nutritionnels" element={<UnderDevelopment />} />
           <Route path="/programmes-exercices" element={<UnderDevelopment />} />

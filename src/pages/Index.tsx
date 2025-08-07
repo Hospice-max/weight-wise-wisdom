@@ -3,47 +3,55 @@ import StatsSection from "@/components/StatsSection";
 import TestimonialCard from "@/components/TestimonialCard";
 import ShareExperienceForm from "@/components/ShareExperienceForm";
 import ResourcesSection from "@/components/ResourcesSection";
+import Newsletter from "@/components/Newsletter";
 import { useEffect, useState, useCallback } from "react";
+import { getTestimonials, deleteTestimonial, Testimonial } from "@/lib/firebaseService";
+import { useToast } from "@/hooks/use-toast";
+import { Timestamp } from "firebase/firestore";
 
 const Index = () => {
-  const defaultTestimonials = [
+  const defaultTestimonials: Testimonial[] = [
     {
-      id: 1,
+      id: "1",
       name: "Marie L.",
-      age: 34,
+      age: "34",
       story:
         "Après avoir perdu 25kg en 18 mois, je peux dire que la clé c'est la patience et l'accompagnement. N'hésitez pas à vous faire aider !",
-      weightLoss: 25,
+      weightLoss: "25",
       timeframe: "18 mois",
       image: null,
-      userId: "system_user_1"
+      userId: "system_user_1",
+      createdAt: Timestamp.fromDate(new Date())
     },
     {
-      id: 2,
+      id: "2",
       name: "Thomas B.",
-      age: 42,
+      age: "42",
       story:
         "Le sport m'a sauvé la vie. Commencez petit : 10 minutes de marche par jour, puis augmentez progressivement. L'important c'est la régularité.",
-      weightLoss: 18,
+      weightLoss: "18",
       timeframe: "12 mois",
       image: null,
-      userId: "system_user_2"
+      userId: "system_user_2",
+      createdAt: Timestamp.fromDate(new Date())
     },
     {
-      id: 3,
+      id: "3",
       name: "Sarah K.",
-      age: 29,
+      age: "29",
       story:
         "Changer mes habitudes alimentaires sans me priver complètement a été la solution. 80% d'alimentation saine, 20% de plaisir !",
-      weightLoss: 15,
+      weightLoss: "15",
       timeframe: "10 mois",
       image: null,
-      userId: "system_user_3"
+      userId: "system_user_3",
+      createdAt: Timestamp.fromDate(new Date())
     },
   ];
 
-  const [testimonials, setTestimonials] = useState(defaultTestimonials);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials);
   // Générer un identifiant utilisateur unique si non défini
+  const { toast } = useToast();
   const [currentUserId] = useState(() => {
     // Vérifier si un ID utilisateur existe déjà dans le localStorage
     const storedUserId = localStorage.getItem('currentUserId');
@@ -56,29 +64,44 @@ const Index = () => {
   });
 
   useEffect(() => {
-    const testim = localStorage.getItem("Témoignages");
-    if (testim) {
-      const parsedTestim = JSON.parse(testim);
-      if (Array.isArray(parsedTestim)) {
-        setTestimonials((prev) => [...prev, ...parsedTestim]);
-      } else {
-        setTestimonials((prev) => [...prev, parsedTestim]);
+    const fetchTestimonials = async () => {
+      console.log("Fetching testimonials from Firebase");
+      const result = await getTestimonials();
+      console.log("Firebase response:", result);
+      if (result.success) {
+        setTestimonials((prev) => [...prev, ...result.data]);
       }
-    }
+    };
+    
+    fetchTestimonials();
   }, []);
 
-  const handleDeleteTestimonial = useCallback((id: number) => {
-    setTestimonials(prevTestimonials => {
-      // Filtrer le témoignage à supprimer
-      const updatedTestimonials = prevTestimonials.filter(t => t.id !== id);
+  const handleDeleteTestimonial = useCallback(async (id: string) => {
+    console.log("Deleting testimonial with ID:", id);
+    // Supprimer le témoignage de Firebase
+    const result = await deleteTestimonial(id);
+    console.log("Firebase delete response:", result);
+    
+    if (result.success) {
+      // Mettre à jour l'état local après la suppression
+      setTestimonials(prevTestimonials => {
+        // Filtrer le témoignage à supprimer
+        const updatedTestimonials = prevTestimonials.filter(t => t.id !== id);
+        return updatedTestimonials;
+      });
       
-      // Mettre à jour le localStorage
-      const userTestimonials = updatedTestimonials.filter(t => t.userId === currentUserId);
-      localStorage.setItem('Témoignages', JSON.stringify(userTestimonials));
-      
-      return updatedTestimonials;
-    });
-  }, [currentUserId]);
+      toast({
+        title: "Témoignage supprimé",
+        description: "Votre témoignage a été supprimé avec succès.",
+      });
+    } else {
+      toast({
+        title: "Erreur de suppression",
+        description: "Une erreur est survenue lors de la suppression du témoignage.",
+        variant: "destructive",
+      });
+    }
+  }, [toast]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
@@ -111,6 +134,7 @@ const Index = () => {
 
       <ShareExperienceForm />
       <ResourcesSection />
+      <Newsletter />
 
       {/* Footer */}
       <footer className="bg-gray-800 text-white py-8">
