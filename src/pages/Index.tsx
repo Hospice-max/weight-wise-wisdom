@@ -63,24 +63,20 @@ const Index = () => {
     return newUserId;
   });
 
-  useEffect(() => {
-    const fetchTestimonials = async () => {
-      console.log("Fetching testimonials from Firebase");
-      const result = await getTestimonials();
-      console.log("Firebase response:", result);
-      if (result.success) {
-        setTestimonials((prev) => [...prev, ...result.data]);
-      }
-    };
-    
-    fetchTestimonials();
+  const fetchTestimonials = useCallback(async () => {
+    const result = await getTestimonials();
+    if (result.success) {
+      setTestimonials((prev) => [...prev, ...result.data]);
+    }
   }, []);
 
-  const handleDeleteTestimonial = useCallback(async (id: string) => {
-    console.log("Deleting testimonial with ID:", id);
+  useEffect(() => {
+    fetchTestimonials();
+  }, [fetchTestimonials]);
+
+  const handleDeleteTestimonial = useCallback(async (id: string) => {    
     // Supprimer le témoignage de Firebase
-    const result = await deleteTestimonial(id);
-    console.log("Firebase delete response:", result);
+    const result = await deleteTestimonial(id);    
     
     if (result.success) {
       // Mettre à jour l'état local après la suppression
@@ -132,7 +128,7 @@ const Index = () => {
         </div>
       </section>
 
-      <ShareExperienceForm />
+      <ShareExperienceForm onTestimonialSubmitted={fetchTestimonials} />
       <ResourcesSection />
       <Newsletter />
 

@@ -27,10 +27,8 @@ export const sendEmail = async (emailData: EmailData) => {
     }
     
     return { success: true };
-    */
+    */    
     
-    // For now, we'll just log to console and simulate success
-    console.log('Email would be sent:', emailData);
     return { success: true };
   } catch (error) {
     console.error('Error sending email:', error);

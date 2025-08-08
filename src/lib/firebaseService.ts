@@ -117,15 +117,13 @@ export const confirmNewsletterSubscription = async (token: string) => {
 
 // Add a testimonial
 export const addTestimonial = async (testimonial: Omit<Testimonial, "id" | "createdAt">) => {
-  try {
-    console.log("Adding testimonial to Firebase:", testimonial);
+  try {    
     const testimonialWithTimestamp = {
       ...testimonial,
       createdAt: Timestamp.now()
     };
     
-    const docRef = await addDoc(collection(db, TESTIMONIALS_COLLECTION), testimonialWithTimestamp);
-    console.log("Testimonial added successfully with ID:", docRef.id);
+    const docRef = await addDoc(collection(db, TESTIMONIALS_COLLECTION), testimonialWithTimestamp);    
     return { success: true, id: docRef.id };
   } catch (error) {
     console.error("Error adding testimonial: ", error);
@@ -135,8 +133,7 @@ export const addTestimonial = async (testimonial: Omit<Testimonial, "id" | "crea
 
 // Get all testimonials
 export const getTestimonials = async () => {
-  try {
-    console.log("Fetching testimonials from Firebase");
+  try {    
     const q = query(collection(db, TESTIMONIALS_COLLECTION));
     const querySnapshot = await getDocs(q);
     const testimonials: Testimonial[] = [];
@@ -144,8 +141,7 @@ export const getTestimonials = async () => {
     querySnapshot.forEach((doc) => {
       testimonials.push({ id: doc.id, ...doc.data() } as Testimonial);
     });
-    
-    console.log("Fetched testimonials:", testimonials);
+        
     return { success: true, data: testimonials };
   } catch (error) {
     console.error("Error getting testimonials: ", error);
@@ -155,10 +151,8 @@ export const getTestimonials = async () => {
 
 // Delete a testimonial
 export const deleteTestimonial = async (id: string) => {
-  try {
-    console.log("Deleting testimonial with ID:", id);
-    await deleteDoc(doc(db, TESTIMONIALS_COLLECTION, id));
-    console.log("Testimonial deleted successfully");
+  try {    
+    await deleteDoc(doc(db, TESTIMONIALS_COLLECTION, id));    
     return { success: true };
   } catch (error) {
     console.error("Error deleting testimonial: ", error);
