@@ -11,7 +11,7 @@ import { addTestimonial } from "@/lib/firebaseService";
 // Taille maximale de l'image en octets (1 Mo)
 const MAX_IMAGE_SIZE = 1 * 1024 * 1024;
 
-const ShareExperienceForm = () => {
+const ShareExperienceForm = ({ onTestimonialSubmitted }: { onTestimonialSubmitted?: () => void }) => {
   const [formData, setFormData] = useState({
     id: Date.now(),
     name: "",
@@ -82,8 +82,7 @@ const ShareExperienceForm = () => {
   };
 
   const stockage = async () => {
-    try {
-      console.log("Stockage function called with formData:", formData);
+    try {      
       // Vérification des champs obligatoires
       if (!formData.name || !formData.age || !formData.story || !formData.weightLoss || !formData.timeframe) {
         toast({
@@ -130,17 +129,15 @@ const ShareExperienceForm = () => {
         image: base64Image as string | null,
         userId: currentUserId, // Ajout de l'ID utilisateur
       };
-  
-      console.log("Saving testimonial to Firebase:", dataToSave);
+        
       // Ajout des données à Firebase
-      const result = await addTestimonial(dataToSave);
-      console.log("Firebase response:", result);
+      const result = await addTestimonial(dataToSave);      
   
       if (result.success) {
         toast({
           title: "Témoignage envoyé !",
           description:
-            "Merci de partager votre expérience. Elle sera vérifiée avant publication.",
+            "Merci de partager votre expérience. N'hésitez pas à vous abonner à notre newsletter pour recevoir des mises à jour sur notre communauté.",
         });
       } else {
         toast({
@@ -164,7 +161,11 @@ const ShareExperienceForm = () => {
     e.preventDefault();
     try {
     await stockage();
-   
+    
+    // Call the fetchTestimonials function if provided
+    if (onTestimonialSubmitted) {
+      onTestimonialSubmitted();
+    }
 
     setFormData({
       id: Date.now(),
