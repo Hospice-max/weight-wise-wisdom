@@ -12,3 +12,4 @@ Allow: /
 
 User-agent: *
 Allow: /
+Sitemap: https://weight-wise-wisdom-mf5s.vercel.app/sitemap.xml
