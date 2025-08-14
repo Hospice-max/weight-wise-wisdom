@@ -205,6 +205,7 @@ service cloud.firestore {
 
 ## 🤝 Contribution
 
+
 Les contributions sont les bienvenues ! Voici comment contribuer :
 
 1. **Fork** le projet
@@ -244,6 +245,9 @@ Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de 
 ## 👥 Équipe
 
 - **Hospice Ahouandjinou** - Développeur principal - [@Hospice-max](https://github.com/Hospice-max)
+
+- Votre nom - [Hospice AHOUANDJINOU]
+
 
 ## 🙏 Remerciements
 
