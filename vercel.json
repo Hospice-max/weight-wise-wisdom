@@ -13,5 +13,13 @@
         "distDir": "dist"
       }
     }
-  ]
+  ],
+  "overrides": {
+    "sitemap.xml": {
+      "contentType": "application/xml"
+    },
+    "robots.txt": {
+      "contentType": "text/plain"
+    }
+  }
 }
